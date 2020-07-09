@@ -1,0 +1,2 @@
+	success	cost	biting_rate	infection_rate_h	recovery_rate_h	infection_rate_v	birth_rate_v	mortality_rate_v	status	message
+0	False	57852517366.598885	0.10000085796855117	0.00300760561918641	0.10014651554798658	0.0024614321775293284	0.06660425165647008	0.0013524759110102487	0	The maximum number of function evaluations is exceeded.
