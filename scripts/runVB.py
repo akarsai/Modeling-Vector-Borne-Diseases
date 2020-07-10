@@ -60,13 +60,25 @@ result4 = solve_ivp(model, t_range, y0, method=method, t_eval=t, args=(params,))
 
 
 
-# plot simulations
-plt.plot(t,result3[0],label=r'$I_h$ with $\alpha_h=0.05,~ \beta_h = 0.1$',alpha=alphaval, color='black',linestyle='solid')
-plt.plot(t,result1[0],label=r'$I_h$ with $\alpha_h=0.02,~ \beta_h = 0.1$',alpha=alphaval, color='black',linestyle='dashed')
-plt.plot(t,result4[0],label=r'$I_h$ with $\alpha_h=0.05,~ \beta_h = 0.8$',alpha=alphaval, color='black',linestyle='dotted')
-plt.plot(t,result2[0],label=r'$I_h$ with $\alpha_h=0.02,~ \beta_h = 0.8$',alpha=alphaval, color='black',linestyle='dashdot')
-plt.plot(t,result4[1],label=r'$I_v$',alpha=alphaval,color='blue')
-plt.xlabel(r'Time $t$')
-plt.ylabel(r'Number of individuals')
-plt.legend()
+## plot simulations
+fig, ax1 = plt.subplots()
+
+# the humans
+ax1.set_xlabel(r'Time $t$')
+ax1.set_ylabel('Number of humans')
+ax1.plot(t,result3[0],label=r'Prediction of $I_h$ with $\alpha_h=0.05,~ \beta_h = 0.1$',alpha=alphaval, color='black',linestyle='solid')
+ax1.plot(t,result1[0],label=r'Prediction of $I_h$ with $\alpha_h=0.02,~ \beta_h = 0.1$',alpha=alphaval, color='black',linestyle='dashed')
+ax1.plot(t,result4[0],label=r'Prediction of $I_h$ with $\alpha_h=0.05,~ \beta_h = 0.8$',alpha=alphaval, color='black',linestyle='dotted')
+ax1.plot(t,result2[0],label=r'Prediction of $I_h$ with $\alpha_h=0.02,~ \beta_h = 0.8$',alpha=alphaval, color='black',linestyle='dashdot')
+ax1.tick_params(axis='y',labelcolor='black')
+
+# the vectors
+ax2 = ax1.twinx()
+ax2.set_ylabel('Number of vectors',color='blue')
+ax2.plot(t, result4[1], label=r'Prediction of $I_v$', color='blue')
+ax2.tick_params(axis='y',labelcolor='blue')
+
+# show
+fig.legend(bbox_to_anchor=(0.89,0.97))
+fig.tight_layout()
 plt.show()

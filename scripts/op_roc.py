@@ -1,4 +1,12 @@
 import pandas as pd
+import matplotlib
+matplotlib.rcParams.update({
+    "pgf.texsystem": "pdflatex",
+    'font.family': 'serif',
+    'text.usetex': True,
+    'pgf.rcfonts': False,
+    'figure.dpi': 200,
+})
 import matplotlib.pyplot as plt
 from pathlib import Path
 
@@ -27,7 +35,7 @@ df["time"] = (df["Year"] - df["Year"].min())
 ## Create simulator ##
 # set model and initial values and parameters
 model = vectorborne
-Nh = 5.2E6
+Nh  = 5.2E6
 i_h = 1E6
 i_v = 100000
 
@@ -59,40 +67,55 @@ fit_parameters = [
     ),
     FitParameter(
         pid="infection_rate_h", initial_value=0.003,
-        lower_bound=1E-8, upper_bound=1
+        lower_bound=1E-4, upper_bound=1
     ),
     FitParameter(
         pid="recovery_rate_h", initial_value=0.1,
-        lower_bound=1E-8, upper_bound=1
+        lower_bound=1E-3, upper_bound=1
     ),
     FitParameter(
         pid="infection_rate_v", initial_value=0.001,
-        lower_bound=1E-8, upper_bound=1
+        lower_bound=1E-5, upper_bound=1
     ),
     FitParameter(
-        pid="birth_rate_v", initial_value=0.01,
-        lower_bound=1E-6, upper_bound=1E4
+        pid="birth_rate_v", initial_value=0.1,
+        lower_bound=1E-1, upper_bound=1E4
     ),
     FitParameter(
         pid="mortality_rate_v", initial_value=0.001,
-        lower_bound=1E-12, upper_bound=1
+        lower_bound=1E-4, upper_bound=1
     ),
 ]
 
+# run fit
 op = OptimizationProblem(opid="congo_fit", sim=sim, parameters=fit_parameters, data=df)
 p = op.fitting(size=1, results_path=RESULTS_PATH)
 
-# plot fit
+# solve one last time with the optimal values
 t, y = sim.integrate(t=20, parameters=p)
-plt.plot(t, y[0], label=r"Prediction of $I_h$", color="black")
-plt.plot(t, y[1], label=r"Prediction of $I_v$", color="blue")
-# plt.xticks(t,[str(2000+x) for x in range(1,18)])
-plt.plot(df.time, df.n_cases, label="Reference", color="red")
-plt.ticklabel_format(axis='y',style='sci',scilimits=(6,6))
-# plt.title('Fit for the Republic of Congo')
-plt.xlim(0,17)
-plt.xticks([x for x in range(18)],['\''+str(2000+x)[-2:] for x in range(18)])
-plt.xlabel('Year')
-plt.ylabel('Number of individuals')
-plt.legend()
+
+## plot fit
+fig, ax1 = plt.subplots()
+
+# the humans
+ax1.set_xlim(0,17)
+ax1.set_xlabel('Year')
+ax1.set_xticks([x for x in range(18)])
+ax1.set_xticklabels(['\''+str(2000+x)[-2:] for x in range(18)])
+ax1.set_ylabel('Number of humans')
+ax1.ticklabel_format(axis='y',style='sci',scilimits=(6,6))
+ax1.plot(t, y[0], label=r'Prediction of $I_h$', color='black')
+ax1.plot(df.time, df.n_cases, label=r'Reference of $I_h$', color='black', linestyle='--')
+ax1.tick_params(axis='y',labelcolor='black')
+
+# the vectors
+ax2 = ax1.twinx()
+ax2.set_ylabel('Number of vectors',color='blue')
+ax2.ticklabel_format(axis='y',style='sci',scilimits=(3,3))
+ax2.plot(t, y[1], label=r'Prediction of $I_v$', color='blue')
+ax2.tick_params(axis='y',labelcolor='blue')
+
+# show
+fig.legend(fancybox=True, framealpha=1, bbox_to_anchor=(0.9,0.938))
+fig.tight_layout()
 plt.show()

@@ -41,12 +41,12 @@ i_h = 24E6
 i_v = 500000
 
 # not important, fitting will be done later!
-biting_rate = 0.3
-infection_rate_h = 0.4
-recovery_rate_h = 0.2
-infection_rate_v = 0.2
-birth_rate_v = 0.3
-mortality_rate_v = 0.4
+biting_rate = 4.5416969672558e-05
+infection_rate_h = 0.004725079363526069
+recovery_rate_h = 0.0775561943551163
+infection_rate_v = 0.00016749953665883685
+birth_rate_v = 10.54484694075789
+mortality_rate_v = 0.0006396795654858848
 
 y0 = [i_h, i_v]
 p = [biting_rate,
@@ -59,42 +59,9 @@ p = [biting_rate,
 
 # Create simulator
 sim = Simulator(model=model, y0=y0, args=(Nh,), parameters=p, integrator="LSODA")
-
-fit_parameters = [
-    FitParameter(
-        pid="biting_rate", initial_value=0.1,
-        lower_bound=1E-6, upper_bound=1
-    ),
-    FitParameter(
-        pid="infection_rate_h", initial_value=0.003,
-        lower_bound=1E-4, upper_bound=1
-    ),
-    FitParameter(
-        pid="recovery_rate_h", initial_value=0.1,
-        lower_bound=1E-3, upper_bound=1
-    ),
-    FitParameter(
-        pid="infection_rate_v", initial_value=0.001,
-        lower_bound=1E-5, upper_bound=1
-    ),
-    FitParameter(
-        pid="birth_rate_v", initial_value=0.1,
-        lower_bound=1E-1, upper_bound=1E4
-    ),
-    FitParameter(
-        pid="mortality_rate_v", initial_value=0.001,
-        lower_bound=1E-4, upper_bound=1
-    ),
-]
-
-# run fit
-op = OptimizationProblem(opid="drc_fit", sim=sim, parameters=fit_parameters, data=df)
-p = op.fitting(size=1, results_path=RESULTS_PATH)
-
-# solve one last time with the optimal values
 t, y = sim.integrate(t=20, parameters=p)
 
-## plot fit
+# plot fit
 fig, ax1 = plt.subplots()
 
 # the humans
@@ -107,6 +74,7 @@ ax1.ticklabel_format(axis='y',style='sci',scilimits=(6,6))
 ax1.plot(t, y[0], label=r'Prediction of $I_h$', color='black')
 ax1.plot(df.time, df.n_cases, label=r'Reference of $I_h$', color='black', linestyle='--')
 ax1.tick_params(axis='y',labelcolor='black')
+# ax1.legend()
 
 # the vectors
 ax2 = ax1.twinx()
@@ -114,6 +82,7 @@ ax2.set_ylabel('Number of vectors',color='blue')
 ax2.ticklabel_format(axis='y',style='sci',scilimits=(3,3))
 ax2.plot(t, y[1], label=r'Prediction of $I_v$', color='blue')
 ax2.tick_params(axis='y',labelcolor='blue')
+# ax2.legend()
 
 # show
 fig.legend(fancybox=True, framealpha=1, bbox_to_anchor=(0.9,0.938))
